@@ -1,0 +1,429 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model BusinessLine {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model DebtorConcept {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model DebtType {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model IdentificationType {
+  id          String @id
+  name        String @unique
+  description String
+}
+
+model ProviderConcept {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model ImpairmentConcept {
+  id          Int    @id @default(autoincrement())
+  minDay      Int
+  maxDay      Int
+  description String
+}
+
+model SubsequentMeasurement {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+}
+
+model MunicipalCode {
+  id   String @id
+  name String @unique
+}
+
+model Workflow {
+  id          String  @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+
+  definition    String
+  executionPlan String?
+
+  cron String?
+
+  status String // DRAFT | PUBLISHED
+
+  lastRunAt     DateTime?
+  lastRunId     String?
+  lastRunStatus String?
+
+  nextRunAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  executions WorkflowExecution[]
+
+  // User cannot have two workflows with the same name
+  @@unique([name, userId])
+}
+
+
+
+model WorkflowExecution {
+  id          String    @id @default(cuid())
+  workflowId  String
+  userId      String
+  trigger     String
+  status      String
+  createdAt   DateTime  @default(now())
+  startedAt   DateTime?
+  completedAt DateTime?
+  definition  String    @default("{}")
+
+  phases ExecutionPhase[]
+
+  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+}
+
+
+
+model ExecutionPhase {
+  id          String    @id @default(cuid())
+  userId      String
+  status      String
+  number      Int
+  node        String
+  name        String
+  startedAt   DateTime?
+  completedAt DateTime?
+  inputs      String?
+  outputs     String?
+
+  workflowExecutionId String
+  execution           WorkflowExecution @relation(fields: [workflowExecutionId], references: [id], onDelete: Cascade)
+
+  logs ExecutionLog[]
+}
+
+model ExecutionLog {
+  id        String   @id @default(cuid())
+  logLevel  String
+  message   String
+  timestamp DateTime @default(now())
+
+  executionPhaseId String
+  executionPhase   ExecutionPhase @relation(fields: [executionPhaseId], references: [id], onDelete: Cascade)
+}
+
+model Source {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  nameFather  String   @default("")
+  createdDate DateTime @default(now())
+  active      Boolean  @default(false)
+
+  typeSource   TypeSource @relation(fields: [typeSourceId], references: [id])
+  typeSourceId Int        @default(1)
+
+  origins Origin[]
+}
+
+model TypeSource {
+  id      Int      @id @default(autoincrement())
+  name    String
+  active  Boolean  @default(true)
+  sources Source[]
+}
+
+model Origin {
+  id String @id @default(cuid())
+
+  source   Source @relation(fields: [sourceId], references: [id])
+  sourceId String
+
+  originName String
+
+  createdDate DateTime? @default(now())
+  userId      String    @default("bot")
+
+  lastModified DateTime? @default(now())
+  extension    String
+  url          String
+
+  cutOffDate DateTime?
+
+  frequency   Frequency? @relation(fields: [frequencyId], references: [id])
+  frequencyId Int?
+
+  version Int @default(1)
+
+  active Boolean @default(false)
+
+  dailyBalances      DailyBalance[]
+  weeklyBalances     WeeklyBalance[]
+  monthlyBalances    MonthlyBalance[]
+  bimonthlyBalances  BimonthlyBalance[]
+  quarterlyBalances  QuarterlyBalance[]
+  semiannualBalances SemiannualBalance[]
+  annualBalances     AnnualBalance[]
+}
+
+model Frequency {
+  id     Int     @id @default(autoincrement())
+  name   String
+  days   Int
+  active Boolean @default(true)
+
+  origins            Origin[]
+  dailyBalances      DailyBalance[]
+  weeklyBalances     WeeklyBalance[]
+  monthlyBalances    MonthlyBalance[]
+  bimonthlyBalances  BimonthlyBalance[]
+  quarterlyBalances  QuarterlyBalance[]
+  semiannualBalances SemiannualBalance[]
+  annualBalances     AnnualBalance[]
+}
+
+model DailyBalance {
+  id             String @id @default(cuid())
+  accountCode    Int    @default(0)
+  accountName    String @default("")
+  thirdParty     String @default("")
+  openingBalance Float  @default(0)
+  debits         Float  @default(0)
+  credits        Float  @default(0)
+  closingBalance Float  @default(0)
+
+  origin   Origin @relation(fields: [originId], references: [id])
+  originId String
+
+  createdDate DateTime? @default(now())
+  userId      String    @default("bot")
+
+  lastModified DateTime? @default(now())
+
+  cutOffDate DateTime?
+
+  frequency   Frequency? @relation(fields: [frequencyId], references: [id])
+  frequencyId Int?
+
+  version Int @default(1)
+}
+
+model WeeklyBalance {
+  id             String @id @default(cuid())
+  accountCode    Int    @default(0)
+  accountName    String @default("")
+  thirdParty     String @default("")
+  openingBalance Float  @default(0)
+  debits         Float  @default(0)
+  credits        Float  @default(0)
+  closingBalance Float  @default(0)
+
+  origin   Origin @relation(fields: [originId], references: [id])
+  originId String
+
+  createdDate DateTime? @default(now())
+  userId      String    @default("bot")
+
+  lastModified DateTime? @default(now())
+
+  cutOffDate DateTime?
+
+  frequency   Frequency? @relation(fields: [frequencyId], references: [id])
+  frequencyId Int?
+
+  version Int @default(1)
+}
+
+model MonthlyBalance {
+  id             String @id @default(cuid())
+  accountCode    Int    @default(0)
+  accountName    String @default("")
+  thirdParty     String @default("")
+  openingBalance Float  @default(0)
+  debits         Float  @default(0)
+  credits        Float  @default(0)
+  closingBalance Float  @default(0)
+
+  origin   Origin @relation(fields: [originId], references: [id])
+  originId String
+
+  createdDate DateTime? @default(now())
+  userId      String    @default("bot")
+
+  lastModified DateTime? @default(now())
+
+  cutOffDate DateTime?
+
+  frequency   Frequency? @relation(fields: [frequencyId], references: [id])
+  frequencyId Int?
+
+  version Int @default(1)
+}
+
+model BimonthlyBalance {
+  id             String @id @default(cuid())
+  accountCode    Int    @default(0)
+  accountName    String @default("")
+  thirdParty     String @default("")
+  openingBalance Float  @default(0)
+  debits         Float  @default(0)
+  credits        Float  @default(0)
+  closingBalance Float  @default(0)
+
+  origin   Origin @relation(fields: [originId], references: [id])
+  originId String
+
+  createdDate DateTime? @default(now())
+  userId      String    @default("bot")
+
+  lastModified DateTime? @default(now())
+
+  cutOffDate DateTime?
+
+  frequency   Frequency? @relation(fields: [frequencyId], references: [id])
+  frequencyId Int?
+
+  version Int @default(1)
+}
+
+model QuarterlyBalance {
+  id             String @id @default(cuid())
+  accountCode    Int    @default(0)
+  accountName    String @default("")
+  thirdParty     String @default("")
+  openingBalance Float  @default(0)
+  debits         Float  @default(0)
+  credits        Float  @default(0)
+  closingBalance Float  @default(0)
+
+  origin   Origin @relation(fields: [originId], references: [id])
+  originId String
+
+  createdDate DateTime? @default(now())
+  userId      String    @default("bot")
+
+  lastModified DateTime? @default(now())
+
+  cutOffDate DateTime?
+
+  frequency   Frequency? @relation(fields: [frequencyId], references: [id])
+  frequencyId Int?
+
+  version Int @default(1)
+}
+
+model SemiannualBalance {
+  id             String @id @default(cuid())
+  accountCode    Int    @default(0)
+  accountName    String @default("")
+  thirdParty     String @default("")
+  openingBalance Float  @default(0)
+  debits         Float  @default(0)
+  credits        Float  @default(0)
+  closingBalance Float  @default(0)
+
+  origin   Origin @relation(fields: [originId], references: [id])
+  originId String
+
+  createdDate DateTime? @default(now())
+  userId      String    @default("bot")
+
+  lastModified DateTime? @default(now())
+
+  cutOffDate DateTime?
+
+  frequency   Frequency? @relation(fields: [frequencyId], references: [id])
+  frequencyId Int?
+
+  version Int @default(1)
+}
+
+model AnnualBalance {
+  id             String @id @default(cuid())
+  accountCode    Int    @default(0)
+  accountName    String @default("")
+  thirdParty     String @default("")
+  openingBalance Float  @default(0)
+  debits         Float  @default(0)
+  credits        Float  @default(0)
+  closingBalance Float  @default(0)
+
+  origin   Origin @relation(fields: [originId], references: [id])
+  originId String
+
+  createdDate DateTime? @default(now())
+  userId      String    @default("bot")
+
+  lastModified DateTime? @default(now())
+
+  cutOffDate DateTime?
+
+  frequency   Frequency? @relation(fields: [frequencyId], references: [id])
+  frequencyId Int?
+
+  version Int @default(1)
+}
+
+// model UserBalanace {
+//   userId  String @id
+//   credits Int    @default(0)
+// }
+
+// model Credential {
+//   id     String @id @default(cuid())
+//   userId String
+//   name   String
+//   value  String
+
+//   createdAt DateTime @default(now())
+
+//   @@unique([userId, name])
+// }
+
+// model UserPurchase {
+//   id          String   @id @default(cuid())
+//   userId      String
+//   stripeId    String
+//   description String
+//   amount      Int
+//   currency    String
+//   date        DateTime @default(now())
+// }
+
+
+model CatalogWorkflow {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  template    String
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+}
+
+model CatalogScript {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  template    String
+  version     Int      @default(1)
+  createdAt   DateTime @default(now())
+}
