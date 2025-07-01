@@ -4,6 +4,7 @@ const withNextIntl = createNextIntlPlugin();
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+      webpackBuildWorker: true,
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb", // Puedes poner más si lo necesitas
