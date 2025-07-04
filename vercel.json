@@ -1,20 +1,14 @@
 {
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/**.py": {
+      "runtime": "@vercel/python",
+      "excludeFiles": "{.next,.git,node_modules}/**"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "index.py"
+      "dest": "api/index.py"
     }
-  ],
-
-  "functions": {
-    "api/**": {
-      "excludeFiles": "{.next,.git,node_modules}/**"
-    }
-  }
+  ]
 }
