@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/v1/py/**": {
+    "api/**": {
       "excludeFiles": "{.next,.git,node_modules}/**"
     }
   }
