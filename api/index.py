@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from api.routers import flowEdge, flowNode, process, data, balances, flow, typeNode
 
 
-
 ### Create FastAPI instance with custom docs and openapi url
 app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
 
