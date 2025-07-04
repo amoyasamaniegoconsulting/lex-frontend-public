@@ -1,6 +1,6 @@
 [build]
   command = "npm run prisma:deploy && next build"
-  publish = "out"  # O `.next`, o `build`, según cómo exportes tu Next.js app
+  publish = "." 
 
 [build.environment]
   PYTHON_VERSION = "3.10"
