@@ -1,0 +1,16 @@
+[build]
+  command = "npm run prisma:deploy && next build"
+  publish = "out"  # O `.next`, o `build`, según cómo exportes tu Next.js app
+
+[build.environment]
+  PYTHON_VERSION = "3.10"
+  PIP_NO_CACHE_DIR = "false"
+  PIP_ONLY_BINARY = ":all:"  # Evita compilar pandas desde fuente
+  PIP_DISABLE_PIP_VERSION_CHECK = "1"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
