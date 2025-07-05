@@ -32,7 +32,7 @@ export async function UploadAnyToS3(form: FormData, key: string) {
     const fileKey = `generates/${userId}/${key}/${uuidFileName}`
 
     const command = new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME!,
+        Bucket: process.env.NEXT_AWS_BUCKET_NAME!,
         Key: fileKey,
         Body: buffer,
         ContentType: file.type,

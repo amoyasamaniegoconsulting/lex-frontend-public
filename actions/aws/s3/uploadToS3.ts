@@ -45,7 +45,7 @@ export async function UploadToS3(form: FormData) {
     const fileKey = `files/${userId}/${data.frequency}/v${data.version}/${uuidFileName}`
 
     const command = new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME!,
+        Bucket: process.env.NEXT_AWS_BUCKET_NAME!,
         Key: fileKey,
         Body: buffer,
         ContentType: data.file.type,
@@ -53,7 +53,7 @@ export async function UploadToS3(form: FormData) {
 
     try {
         await s3Client.send(command)
-        // const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileKey}`
+        // const fileUrl = `https://${process.env.NEXT_AWS_BUCKET_NAME}.s3.${process.env.NEXT_AWS_REGION}.amazonaws.com/${fileKey}`
 
         let sourceName = '';
 

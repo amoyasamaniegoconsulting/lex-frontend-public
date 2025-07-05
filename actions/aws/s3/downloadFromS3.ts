@@ -8,7 +8,7 @@ export const DownloadFromS3 = async (fileKey: string) => {
 
         // Generar el presigned URL
         const command = new GetObjectCommand({
-            Bucket: process.env.AWS_BUCKET_NAME!,
+            Bucket: process.env.NEXT_AWS_BUCKET_NAME!,
             Key: fileKey, // Se usa el key correcto
             ResponseContentDisposition: `attachment; filename="${fileKey.split('/').pop()}"`, // <-- Aquí el cambio
         });

@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     // Subir el archivo a S3
     const fileName = `logs/${formattedDate}_data.log`;
     const uploadParams = {
-      Bucket: process.env.AWS_BUCKET_NAME!,
+      Bucket: process.env.NEXT_AWS_BUCKET_NAME!,
       Key: fileName,
       Body: finalString, // Cuerpo del archivo con el historial
       ContentType: "text/plain", // Tipo de archivo

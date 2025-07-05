@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
         // Eliminar de S3
         const deleteParams = {
-            Bucket: process.env.AWS_BUCKET_NAME!,
+            Bucket: process.env.NEXT_AWS_BUCKET_NAME!,
             Key: `${path}/${filename}`,
         };
 

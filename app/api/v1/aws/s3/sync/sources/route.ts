@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     const command = new ListObjectsV2Command({
-      Bucket: process.env.AWS_BUCKET_NAME!,
+      Bucket: process.env.NEXT_AWS_BUCKET_NAME!,
       Prefix: `${path}/`,
     });
 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const fileList = sortedFiles.map((file) => ({
       fileName: file.Key!.replace(`${path}/`, ""),
       lastModified: file.LastModified!,
-      url: `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${file.Key}`,
+      url: `https://${process.env.NEXT_AWS_BUCKET_NAME}.s3.${process.env.NEXT_AWS_REGION}.amazonaws.com/${file.Key}`,
     }));
 
     const source = await GetSourceByPath(path);

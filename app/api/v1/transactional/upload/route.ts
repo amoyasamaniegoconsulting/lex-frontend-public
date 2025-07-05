@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     console.log('Archivo Subido:' +file);
 
     const uploadParams = {
-      Bucket: process.env.AWS_BUCKET_NAME!,
+      Bucket: process.env.NEXT_AWS_BUCKET_NAME!,
       Key: fileName,
       Body: fileBuffer,
       ContentType: file.type,
